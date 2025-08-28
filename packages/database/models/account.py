@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import List
+from typing import List, Literal
 from pydantic import BaseModel
-from sqlalchemy import Dialect, ForeignKey, Integer, String, Boolean, DateTime, TypeDecorator
+from sqlalchemy import Dialect, ForeignKey, Integer, String, Boolean, DateTime, TypeDecorator, null
 import sqlalchemy
 import ua_generator
 from sqlalchemy.orm import mapped_column, Mapped, relationship
@@ -54,9 +54,9 @@ class Account(Base):
   ua: Mapped[str] = mapped_column(String, default=lambda: gen_ua())
   created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
   updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
-  proxy_id: Mapped[int] = mapped_column(ForeignKey("proxy.id"))
   cookies: Mapped[CookieParam | None] = mapped_column(CookieType, nullable=True, default=None)
-  proxy: Mapped[List["Proxy"]] = relationship(back_populates="accounts")
+  proxy_id: Mapped[int | None] = mapped_column(ForeignKey("proxy.id"), nullable=True, default=None)
+  proxy: Mapped["Proxy | None"] = relationship(back_populates="accounts")
   
   def to_schema(self) -> AccountSchema:
     return AccountSchema.model_validate(self)
