@@ -50,4 +50,6 @@ async def health_check():
 
 if __name__ == "__main__":
   import uvicorn
-  uvicorn.run(app, host=(os.getenv("HOST") or "localhost"), port=(os.getenv("PORT") or 8000), log_level="info")
+  port = int(os.getenv("PORT", "8000"))
+  host = os.getenv("HOST", "0.0.0.0")
+  uvicorn.run(app, host=host, port=port, log_level="info")
