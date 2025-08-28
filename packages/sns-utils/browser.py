@@ -1,15 +1,16 @@
 from typing import Optional
+from zendriver.core.config import PathLike
 import zendriver
-import os
 import logging
+from ..database.models.proxy import Proxy
 
 class BrowserUtil:
-  proxy_url: Optional[str]
-  user_data_dir: Optional[os.PathLike]
-  logger = logging.get_logger("BrowserUtil")
+  proxy: Optional[Proxy]
+  user_data_dir: Optional[PathLike]
+  logger = logging.getLogger("BrowserUtil")
   
-  def __init__(self, proxy_url: Optional[str] = None, user_data_dir: Optional[os.PathLike] = None):
-    self.proxy_url = proxy_url
+  def __init__(self, proxy: Optional[Proxy] = None, user_data_dir: Optional[PathLike] = None):
+    self.proxy = proxy
     self.user_data_dir = user_data_dir
 
   async def get_browser(self, browser_args: list[str] = [], **kwargs) -> zendriver.Browser:
@@ -19,8 +20,8 @@ class BrowserUtil:
       args=browser_args,
       **kwargs
     )
-    if self.proxy_url:
-      await self.__config_proxy(browser)
+    if self.proxy:
+      await self.__config_proxy(browser, self.proxy.username, self.proxy.password)
     return browser
   
   async def __config_proxy(self, browser: zendriver.Browser, username: str, password: str):
