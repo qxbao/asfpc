@@ -2,7 +2,10 @@ from datetime import datetime
 from sqlalchemy import Integer, String, Boolean, DateTime, UniqueConstraint
 from sqlalchemy.orm import mapped_column, relationship, Mapped
 from .base import Base
-from .account import Account
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+  from .account import Account
 
 class Proxy(Base):
     __tablename__ = "proxy"

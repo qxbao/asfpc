@@ -1,12 +1,11 @@
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy.engine import Engine
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession, AsyncEngine
 from typing import Optional
 from urllib.parse import quote
 import logging
 from .models.base import Base
 
 class Database:
-  __engine: Optional[Engine] = None
+  __engine: Optional[AsyncEngine] = None
   __session: Optional[async_sessionmaker[AsyncSession]] = None
   logger = logging.getLogger("Database")
   
@@ -34,7 +33,7 @@ class Database:
       return False
 
   @staticmethod
-  def get_engine() -> Engine:
+  def get_engine() -> AsyncEngine:
     if not Database.__engine:
       Database.logger.exception("Database engine is not initialized.")
       raise Exception("Database engine is not initialized.")
