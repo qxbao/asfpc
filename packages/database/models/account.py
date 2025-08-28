@@ -5,11 +5,12 @@ import ua_generator
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from .base import Base
 from .proxy import Proxy
+from ua_generator.data.version import VersionRange
 
 UA_OPTS = ua_generator._options.Options(
   weighted_versions=True,
   version_ranges={
-    "chrome": ua_generator._options.VersionRange(min="134.0", max="138.0"),
+    "chrome": VersionRange(min_version=134, max_version=138),
   }
 )
 
