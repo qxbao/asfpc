@@ -1,0 +1,46 @@
+version: "3.8"
+services:
+  app:
+    build: .
+    container_name: asfpc-app
+    ports:
+      - "8000:8000"
+    environment:
+      - PG_HOST=db:5432
+    env_file:
+      - .env
+    networks:
+      - asfpc-network
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    container_name: asfpc-db
+    environment:
+      - POSTGRES_USER=${PG_USER:-postgres}
+      - POSTGRES_PASSWORD=${PG_PASSWORD:-password}
+      - POSTGRES_DB=${PG_DB:-asfpc}
+    ports:
+      - "5433:5433"
+    volumes:
+      - asfpc-data:/var/lib/postgresql/data
+    networks:
+      - asfpc-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-postgres} -d ${PG_DB:-asfpc}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+networks:
+  asfpc-network:
+    driver: bridge
+
+volumes:
+  asfpc-data:
+    driver: local
