@@ -7,9 +7,9 @@ from .comment import Comment
 
 __all__ = [
     "Base",
-    "Account", 
-    "Proxy", 
-    "Group", 
-    "Post", 
+    "Account",
+    "Proxy",
+    "Group",
+    "Post",
     "Comment"
 ]

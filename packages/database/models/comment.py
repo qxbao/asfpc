@@ -14,6 +14,6 @@ class Comment(Base):
   content: Mapped[str] = mapped_column(String, nullable=False)
   is_analyzed: Mapped[bool] = mapped_column(default=False)
   created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
-  inserted_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
+  inserted_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
   post_id: Mapped[int] = mapped_column(ForeignKey("post.id"), nullable=False)
   post: Mapped["Post"] = relationship(back_populates="comments")

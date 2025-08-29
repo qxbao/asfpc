@@ -7,6 +7,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from dotenv import load_dotenv
 from alembic import context
+from packages.database.models import Base
 
 load_dotenv()
 
@@ -21,7 +22,6 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from packages.database.models import Base
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
@@ -43,7 +43,10 @@ def run_migrations_offline() -> None:
 
     """
     # Build the database URL from environment variables
-    url = f"postgresql+asyncpg://{os.getenv('PG_USER', 'postgres')}:{quote(os.getenv('PG_PASSWORD', 'password'))}@{os.getenv('PG_HOST', 'localhost:5432')}/{os.getenv('PG_DB', 'ati')}"
+    url = (f"postgresql+asyncpg://{os.getenv('PG_USER', 'postgres')}:"
+           f"{quote(os.getenv('PG_PASSWORD', 'password'))}"
+           f"@{os.getenv('PG_HOST', 'localhost:5432')}/"
+           f"{os.getenv('PG_DB', 'ati')}")
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -67,10 +70,13 @@ async def run_async_migrations() -> None:
     and associate a connection with the context.
 
     """
-    database_url = f"postgresql+asyncpg://{os.getenv('PG_USER', 'postgres')}:{quote(os.getenv('PG_PASSWORD', 'password'))}@{os.getenv('PG_HOST', 'localhost:5432')}/{os.getenv('PG_DB', 'asfpc')}"
+    database_url = (f"postgresql+asyncpg://{os.getenv('PG_USER', 'postgres')}:"
+                    f"{quote(os.getenv('PG_PASSWORD', 'password'))}"
+                    f"@{os.getenv('PG_HOST', 'localhost:5432')}/"
+                    f"{os.getenv('PG_DB', 'asfpc')}")
     
     configuration = config.get_section(config.config_ini_section, {})
-    configuration['sqlalchemy.url'] = database_url
+    configuration["sqlalchemy.url"] = database_url
     
     connectable = async_engine_from_config(
         configuration,

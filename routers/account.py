@@ -1,7 +1,7 @@
+"""Router for /user path"""
 from sqlalchemy import select
 from fastapi import APIRouter
 from packages.database.database import Database
-from packages.database.models import account
 from packages.database.models.account import Account, AccountSchema, AddAccountDTO
 from packages.database.services.account_service import AccountService
 
@@ -12,10 +12,18 @@ router = APIRouter(
 
 @router.get("/page/{page_number}")
 async def get_all_accounts(page_number: int) -> list[AccountSchema]:
-	LIMIT = 20
+	"""Get all accounts with pagination.
+
+	Args:
+			page_number (int): The page number to retrieve.
+
+	Returns:
+			list[AccountSchema]: A list of AccountSchema objects.
+	"""
+	limit = 20
 	async with Database.get_session() as session:
 		accounts = (await session.execute(
-				select(Account).offset((page_number - 1) * LIMIT).limit(LIMIT)
+				select(Account).offset((page_number - 1) * limit).limit(limit)
 			)).scalars().all()
 		return [account.to_schema() for account in accounts]
 
@@ -50,7 +58,7 @@ async def login_account(account_id: int) -> dict:
 	account_service = AccountService()
 	try:
 		account = await account_service.get_account_by_id(
-			id=account_id
+			account_id=account_id
 		)
 		if account is None:
 			return {
