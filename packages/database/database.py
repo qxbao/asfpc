@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 from typing import Optional
 from urllib.parse import quote
 import logging
-from .models.base import Base
+from .models import Base, Account, Proxy, Group, Post, Comment
 
 class Database:
   __engine: Optional[AsyncEngine] = None
@@ -24,9 +24,6 @@ class Database:
       Database.__engine = create_async_engine(connection_str)
       # Init session
       Database.__session = async_sessionmaker(bind=Database.__engine)
-
-      async with Database.__engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
       return True
     except Exception as e:
       Database.logger.error(f"Error initializing database: {e}")
