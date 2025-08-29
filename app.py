@@ -6,8 +6,19 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from packages.database.database import Database
 from routers import account
+import argparse
 
 load_dotenv()
+
+parser = argparse.ArgumentParser(description="Run the FastAPI application.")
+parser.add_argument(
+    "--debug",
+    action=argparse.BooleanOptionalAction,
+    default=False,
+    help="Enable debug mode",
+)
+args = parser.parse_args()
+is_debug = args.debug
 
 logging.basicConfig(
   level=logging.INFO,
@@ -57,4 +68,4 @@ if __name__ == "__main__":
   import uvicorn
   port = int(os.getenv("PORT", "8000"))
   host = os.getenv("HOST", "0.0.0.0")
-  uvicorn.run(app, host=host, port=port, log_level="info")
+  uvicorn.run("app:app", host=host, port=port, log_level="info", reload=is_debug)

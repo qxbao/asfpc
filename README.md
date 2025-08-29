@@ -8,9 +8,10 @@ This project aims to create an automated system that can efficiently identify an
 - [Installation](#installation)
 - [Setup](#setup)
 - [Docker](#docker)
+- [Development](#development)
 
 ## Requirements
-- Python 3.8 or higher
+- Python 3.13 or higher
 - PostgreSQL Server
 - N8N Server
 
@@ -49,7 +50,7 @@ N8N_URL=n8n_url
   1. Install PostgreSQL Server.
   2. Create a new database for the project.
   3. Update the database connection settings in the `.env` file.
-
+  4. Initialize the database schema ([details](#database-migration))
 ### N8N
 If you want to connect to an external N8N server, go directly to step 3:
 
@@ -66,3 +67,20 @@ This project includes a Docker Compose file for easy setup and deployment. To ge
 docker-compose up -d
 ```
 3. Access the application at `http://localhost:8000` and the database at port `5433`.
+
+## Development
+This section will guide you through the development setup for the project.
+
+### Database Migration
+Our database's migration is generated with **Alembic**. To sync your database with the last migration, use the following command:
+```bash
+alembic upgrade head
+```
+Or while developing, create a new migration script with:
+```bash
+alembic revision --autogenerate -m "your_message"
+```
+If any error occurs during migration, you may want to re-migrate from scratch:
+```bash
+alembic downgrade base && alembic upgrade head
+```

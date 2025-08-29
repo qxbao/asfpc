@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import List, Literal
-from pydantic import BaseModel
+from typing import TYPE_CHECKING, List
+from pydantic import BaseModel, Field
 from sqlalchemy import Dialect, ForeignKey, Integer, String, Boolean, DateTime, TypeDecorator, null
 import sqlalchemy
 import ua_generator
@@ -9,6 +9,9 @@ from .base import Base
 from .proxy import Proxy
 from ua_generator.data.version import VersionRange
 from zendriver.cdp.network import CookieParam
+
+if TYPE_CHECKING:
+  from .group import Group
 
 UA_OPTS = ua_generator._options.Options(
   weighted_versions=True,
@@ -30,8 +33,12 @@ class AccountSchema(BaseModel):
   ua: str
   created_at: datetime
   updated_at: datetime
-  
   model_config = {"from_attributes": True}
+
+class AddAccountDTO(BaseModel):
+  username: str = Field(min_length=5, max_length=25, example="1000123456522")
+  email: str = Field(..., example="example@example.com")
+  password: str = Field(min_length=8, example="example_password")
 
 class CookieType(TypeDecorator):
   impl = sqlalchemy.types.JSON
@@ -55,9 +62,13 @@ class Account(Base):
   created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
   updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
   cookies: Mapped[CookieParam | None] = mapped_column(CookieType, nullable=True, default=None)
+  access_token: Mapped[str] = mapped_column(String, default=None, nullable=True)
   proxy_id: Mapped[int | None] = mapped_column(ForeignKey("proxy.id"), nullable=True, default=None)
   proxy: Mapped["Proxy | None"] = relationship(back_populates="accounts")
+  groups: Mapped[List["Group"]] = relationship(back_populates="account", cascade="all, delete-orphan")
   
   def to_schema(self) -> AccountSchema:
     return AccountSchema.model_validate(self)
     
+  def to_json(self) -> dict:
+    return AccountSchema.model_validate(self).model_dump()
