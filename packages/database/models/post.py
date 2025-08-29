@@ -17,4 +17,4 @@ class Post(Base):
   inserted_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
   group_id: Mapped[int] = mapped_column(ForeignKey("group.id"), nullable=False)
   group: Mapped["Group"] = relationship(back_populates="posts")
-  comments: Mapped[list["Comment"]] = relationship(back_populates="post", cascade="all, delete-orphan")
+  comments: Mapped[list["Comment"]] = relationship(back_populates="post", cascade="all")

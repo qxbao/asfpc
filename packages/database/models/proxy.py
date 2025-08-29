@@ -17,7 +17,8 @@ class Proxy(Base):
   password: Mapped[str] = mapped_column(String, nullable=False)
   is_active: Mapped[bool] = mapped_column(Boolean, default=True)
   created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
-  updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
+  updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now,
+                                               onupdate=datetime.now)
   accounts: Mapped[list["Account"]] = relationship(back_populates="proxy")
   UniqueConstraint("ip", "port", "username", name="uq_ip_port_username")
 
