@@ -46,9 +46,9 @@ class AccountSchema(BaseModel):
 
 class AddAccountDTO(BaseModel):
   """Data Transfer Object for adding a new account."""
-  username: str = Field(min_length=5, max_length=25, example="1000123456522")
-  email: str = Field(..., example="example@example.com")
-  password: str = Field(min_length=8, example="example_password")
+  username: str = Field(..., min_length=5, max_length=25, examples=["1000123456522"])
+  email: str = Field(..., examples=["example@example.com"])
+  password: str = Field(..., min_length=8, examples=["example_password"])
 
 class CookieType(TypeDecorator):
   """Custom SQLAlchemy type for handling CookieParam objects."""
