@@ -20,6 +20,7 @@ class BrowserUtil:
       args=browser_args,
       **kwargs
     )
+    await browser.start()
     if self.proxy:
       await self.__config_proxy(browser, self.proxy.username, self.proxy.password)
     return browser

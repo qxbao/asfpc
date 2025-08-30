@@ -48,10 +48,7 @@ async def add_account(account: AddAccountDTO) -> AccountSchema | None:
 		)
 		return new_account.to_schema()
 	except Exception as e:
-		return {
-			"error": "Fail to add account",
-			"details": str(e)
-		}
+		raise RuntimeError("Fail to add account") from e
   
 @router.post("/login/{account_id}")
 async def login_account(account_id: int) -> dict:
