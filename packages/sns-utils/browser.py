@@ -2,7 +2,13 @@ from typing import Optional
 from zendriver.core.config import PathLike
 import zendriver
 import logging
-from ..database.models.proxy import Proxy
+import sys
+import os
+
+# Add the project root to the path to enable imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+from packages.database.models.proxy import Proxy
 
 class BrowserUtil:
   proxy: Optional[Proxy]

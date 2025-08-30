@@ -14,6 +14,7 @@ from .base import Base
 if TYPE_CHECKING:
   from .proxy import Proxy
   from .group import Group
+  from .user_profile import UserProfile
 
 # User-Agent options
 UA_OPTS = ua_generator.options.Options(
@@ -82,6 +83,9 @@ class Account(Base):
   proxy_id: Mapped[int | None] = mapped_column(ForeignKey("proxy.id"), nullable=True, default=None)
   proxy: Mapped["Proxy | None"] = relationship(back_populates="accounts")
   groups: Mapped[List["Group"]] = relationship(back_populates="account", cascade="all")
+  scraped_profiles: Mapped[List["UserProfile"]] = relationship(
+    back_populates="scraped_by_account", cascade="all"
+  )
   
   def to_schema(self) -> AccountSchema:
     """Convert the Account object to an AccountSchema."""
