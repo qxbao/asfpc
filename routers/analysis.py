@@ -51,7 +51,10 @@ class BulkScrapeRequest(BaseModel):
 class AnalyzeProfileRequest(BaseModel):
     """Request to analyze a profile"""
     profile_id: int = Field(..., description="Profile ID to analyze")
-    force_reanalysis: bool = Field(default=False, description="Force re-analysis even if recent analysis exists")
+    force_reanalysis: bool = Field(
+        default=False, 
+        description="Force re-analysis even if recent analysis exists"
+    )
 
 # Helper function to get services (initialized when needed)
 def get_services():
@@ -320,14 +323,16 @@ async def get_profiles_needing_analysis(limit: int = Query(default=10, ge=1, le=
 # Background task functions
 async def _background_bulk_scrape(profile_urls: List[str], account, delay_seconds: int):
     """Background task for bulk profile scraping"""
-    import logging
     logger = logging.getLogger("BulkScrape")
     
     try:
         facebook = Facebook()
         results = await facebook.batch_scrape_profiles(profile_urls, account, delay_seconds)
         
-        logger.info(f"Bulk scraping completed. Successfully scraped {len(results)}/{len(profile_urls)} profiles")
+        logger.info(
+            f"Bulk scraping completed. Successfully scraped "
+            f"{len(results)}/{len(profile_urls)} profiles"
+        )
         
     except Exception as e:
         logger.error(f"Error in bulk scraping: {str(e)}")

@@ -12,7 +12,11 @@ class FinancialAnalysisService:
         self.__session = Database.get_session()
         self.logger = logging.getLogger("FinancialAnalysisService")
 
-    async def create_analysis(self, analysis_data: FinancialAnalysisCreateDTO, user_profile_id: int) -> FinancialAnalysis:
+    async def create_analysis(
+        self, 
+        analysis_data: FinancialAnalysisCreateDTO, 
+        user_profile_id: int
+    ) -> FinancialAnalysis:
         """Create a new financial analysis
         
         Args:
@@ -48,7 +52,10 @@ class FinancialAnalysisService:
             )
             return result.scalar_one_or_none()
 
-    async def get_latest_analysis_for_profile(self, user_profile_id: int) -> Optional[FinancialAnalysis]:
+    async def get_latest_analysis_for_profile(
+        self, 
+        user_profile_id: int
+    ) -> Optional[FinancialAnalysis]:
         """Get the latest analysis for a user profile
         
         Args:

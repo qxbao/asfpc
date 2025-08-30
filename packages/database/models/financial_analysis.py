@@ -100,7 +100,10 @@ class FinancialAnalysisCreateDTO(BaseModel):
 class BatchAnalysisRequest(BaseModel):
     """Request for batch analysis of multiple profiles"""
     profile_ids: list[int] = Field(..., min_length=1, max_length=10)
-    force_reanalysis: bool = Field(default=False, description="Force re-analysis even if recent analysis exists")
+    force_reanalysis: bool = Field(
+        default=False, 
+        description="Force re-analysis even if recent analysis exists"
+    )
 
 
 class BatchAnalysisResponse(BaseModel):
