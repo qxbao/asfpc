@@ -1,4 +1,5 @@
 """Router for /user path"""
+import logging
 from sqlalchemy import select
 from fastapi import APIRouter
 from packages.database.database import Database
@@ -9,6 +10,8 @@ router = APIRouter(
 	prefix="/account",
 	tags=["account"],
 )
+
+logger = logging.getLogger("AccountRouter")
 
 @router.get("/page/{page_number}")
 async def get_all_accounts(page_number: int) -> list[AccountSchema]:
@@ -68,5 +71,28 @@ async def login_account(account_id: int) -> dict:
 	except Exception as e:
 		return {
 			"error": "Fail to login account",
+			"details": str(e)
+		}
+
+@router.post("/gen_at/{account_id}")
+async def gen_access_token(account_id: int) -> dict:
+	account_service = AccountService()
+	try:
+		account = await account_service.get_account_by_id(
+			account_id=account_id
+		)
+		if account is None:
+			return {
+				"error": "Account not found"
+			}
+		token = await account_service.gen_access_token(account)
+		return {
+			"status": "success" if token else "failed",
+			"access_token": token
+		}
+	except Exception as e:
+		logger.exception(e)
+		return {
+			"error": "Fail to generate access token",
 			"details": str(e)
 		}

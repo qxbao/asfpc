@@ -1,6 +1,7 @@
 "Account service module"
 import logging
 from typing import List
+import aiohttp
 from sqlalchemy import select
 from zendriver import Browser
 from packages.database.database import Database
@@ -112,3 +113,25 @@ class AccountService:
     except Exception as e:
       self.logger.error(f"Error logging in account {account.id}: {e}")
       return False
+
+  async def gen_access_token(self, account: Account) -> str | None:
+    """Generate the access token for a logged-in account.
+
+    Args:
+        account (Account): The Account object to get the access token for.
+
+    Returns:
+        str | None: The access token if found, None otherwise.
+    """
+    cookies = BrowserUtil.cookie_converter(account.cookies)
+    async with aiohttp.ClientSession(cookies=cookies) as session:
+      async with session.get("https://business.facebook.com/content_management") as resp:
+        text = await resp.text(encoding="utf-8", errors="ignore")
+        idx = text.find("EAAG")
+        if idx == -1:
+          self.logger.warning(f"Access token not found for account {account.id}")
+          return None
+        token = text[idx:text.find('"', idx)]
+        account.access_token = token
+        await self.update_account(account)
+        return token
