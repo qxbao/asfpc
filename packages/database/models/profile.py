@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 from sqlalchemy import ForeignKey, Integer, String, Text, DateTime, Boolean
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from pydantic import BaseModel
@@ -9,7 +9,6 @@ if TYPE_CHECKING:
   from .account import Account
   from .image import Image
   from .financial_analysis import FinancialAnalysis
-
 
 class UserProfile(Base):
   """User Profile model for storing scraped Facebook profile data"""
@@ -26,8 +25,6 @@ class UserProfile(Base):
   relationship_status: Mapped[Optional[str]] = mapped_column(String, nullable=True)
   profile_url: Mapped[str] = mapped_column(String, nullable=False)
   profile_picture_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-  # images: Mapped[list[str]] = mapped_column(ARRAY, nullable=False, default=[])
-  images: Mapped[list[Image]] = relationship(back_populates="belong_to")
   friends_count: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
   is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
   last_scraped: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
@@ -37,7 +34,8 @@ class UserProfile(Base):
   )
   scraped_by_id: Mapped[int] = mapped_column(ForeignKey("account.id"), nullable=False)
   scraped_by: Mapped["Account"] = relationship(back_populates="scraped_profiles")
-  financial_analyses: Mapped[list["FinancialAnalysis"]] = relationship(
+  images: Mapped["List[Image]"] = relationship(back_populates="belong_to")
+  financial_analyses: Mapped["List[FinancialAnalysis]"] = relationship(
     back_populates="user_profile", cascade="all, delete-orphan"
   )
 

@@ -1,7 +1,7 @@
 """Account model"""
 import os
 from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Set
 from pydantic import BaseModel, Field
 import ua_generator
 from ua_generator.data.version import VersionRange
@@ -11,7 +11,6 @@ from sqlalchemy import Dialect, ForeignKey, Integer, String, Boolean, DateTime, 
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 import sqlalchemy
 from .base import Base
-from .group import account_group_table
 
 if TYPE_CHECKING:
   from .proxy import Proxy
@@ -83,14 +82,14 @@ class Account(Base):
     default=datetime.now,
     onupdate=datetime.now
   )
-  cookies: Mapped[list[Cookie]] = mapped_column(CookieType, nullable=True, default=None)
+  cookies: Mapped[List[Cookie]] = mapped_column(CookieType, nullable=True, default=None)
   access_token: Mapped[str] = mapped_column(String, default=None, nullable=True)
   proxy_id: Mapped[int | None] = mapped_column(ForeignKey("proxy.id"), nullable=True, default=None)
   proxy: Mapped["Proxy | None"] = relationship(back_populates="accounts")
-  groups: Mapped[list["Group"]] = relationship(
-    secondary=account_group_table,
-    back_populates="accounts"
-    )
+  groups: Mapped[Set["Group"]] = relationship(
+    back_populates="account",
+    lazy="selectin"
+  )
   
   def to_schema(self) -> AccountSchema:
     """Convert the Account object to an AccountSchema."""

@@ -6,7 +6,9 @@ from sqlalchemy import select
 from zendriver import Browser
 from packages.database.database import Database
 from packages.database.models import Account
+from packages.database.models.group import Group
 from packages.sns_utils.browser import BrowserUtil
+from packages.sns_utils.facebook import FacebookUtil
 
 class AccountService:
   """
@@ -97,7 +99,7 @@ class AccountService:
         proxy=account.proxy,
         user_data_dir=account.get_user_data_dir()
       ).get_browser()
-      await browser.main_tab.get(f"https://www.facebook.com?username={account.username}&password={account.password}")
+      await browser.main_tab.get(f"{FacebookUtil.url.get("login", "https://www.facebook.com")}?username={account.username}&password={account.password}")
       while True:
         if len(browser.tabs) < 1:
           await self.update_account(account)
@@ -118,7 +120,7 @@ class AccountService:
     Returns:
         str | None: The access token if found, None otherwise.
     """
-    cookies = BrowserUtil.cookie_converter(account.cookies)
+    cookies = BrowserUtil.cookie_aio_converter(account.cookies)
     async with aiohttp.ClientSession(cookies=cookies) as session:
       async with session.get("https://business.facebook.com/content_management") as resp:
         text = await resp.text(encoding="utf-8", errors="ignore")
@@ -130,3 +132,27 @@ class AccountService:
         account.access_token = token
         await self.update_account(account)
         return token
+      
+  async def join_group(self, account: Account, group: Group) -> bool:
+    """Join a Facebook group using the provided account.
+
+    Args:
+        account (Account): The Account object to use for joining the group.
+        group_id (str): The ID of the group to join.
+        group_name (str): The name of the group to join.
+
+    Returns:
+        bool: True if the join request was successful, False otherwise.
+    """
+    try:
+      browser = await BrowserUtil(
+        proxy=account.proxy,
+        user_data_dir=account.get_user_data_dir()
+      ).get_browser()
+      await browser.cookies.set_all(
+        BrowserUtil.cookie_param_converter(account.cookies)
+      )
+      return await FacebookUtil.join_group(group, browser)
+    except Exception as e:
+      self.logger.error(f"Error joining group {group.group_id} with account {account.id}: {e}")
+      raise e

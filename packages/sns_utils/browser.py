@@ -3,7 +3,7 @@ from zendriver.core.config import PathLike
 import zendriver
 import logging
 from ..database.models.proxy import Proxy
-from zendriver.cdp.network import Cookie
+from zendriver.cdp.network import Cookie, CookieParam
 
 class BrowserUtil:
   proxy: Optional[Proxy]
@@ -56,7 +56,7 @@ class BrowserUtil:
     await tab.send(zendriver.cdp.fetch.enable(handle_auth_requests=True))
     
   @staticmethod
-  def cookie_converter(cookies: list[Cookie]) -> dict[str, str]:
+  def cookie_aio_converter(cookies: list[Cookie]) -> dict[str, str]:
     """Convert Zendriver Cookies to AIOHttp cookies
 
     Args:
@@ -66,3 +66,15 @@ class BrowserUtil:
         dict[str, str]: A dictionary representation of the cookies.
     """
     return {cookie.name: cookie.value for cookie in cookies}
+  
+  @staticmethod
+  def cookie_param_converter(cookies: list[Cookie]) -> list[CookieParam]:
+    """Convert Zendriver list[Cookie] to list[CookieParam]
+
+    Args:
+        cookies (list[Cookie]): The list of Zendriver cookies.
+
+    Returns:
+        list[CookieParam]: A list representation of the cookies.
+    """
+    return [CookieParam.from_json(cookie.to_json()) for cookie in cookies]

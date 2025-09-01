@@ -4,6 +4,10 @@ from .proxy import Proxy
 from .group import Group
 from .post import Post
 from .comment import Comment
+from .image import Image
+from .profile import UserProfile
+from .financial_analysis import FinancialAnalysis
+from .prompt import Prompt
 
 __all__ = [
     "Base",
@@ -11,5 +15,9 @@ __all__ = [
     "Proxy",
     "Group",
     "Post",
-    "Comment"
+    "Comment",
+    "Image",
+    "UserProfile",
+    "FinancialAnalysis",
+    "Prompt"
 ]
