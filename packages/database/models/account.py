@@ -11,6 +11,7 @@ from sqlalchemy import Dialect, ForeignKey, Integer, String, Boolean, DateTime, 
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 import sqlalchemy
 from .base import Base
+from .group import account_group_table
 
 if TYPE_CHECKING:
   from .proxy import Proxy
@@ -86,7 +87,10 @@ class Account(Base):
   access_token: Mapped[str] = mapped_column(String, default=None, nullable=True)
   proxy_id: Mapped[int | None] = mapped_column(ForeignKey("proxy.id"), nullable=True, default=None)
   proxy: Mapped["Proxy | None"] = relationship(back_populates="accounts")
-  groups: Mapped[list["Group"]] = relationship(back_populates="account", cascade="all")
+  groups: Mapped[list["Group"]] = relationship(
+    secondary=account_group_table,
+    back_populates="accounts"
+    )
   
   def to_schema(self) -> AccountSchema:
     """Convert the Account object to an AccountSchema."""
