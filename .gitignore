@@ -6,4 +6,5 @@
 __pycache__/
 .venv/
 .vscode/
+.ruff_cache/
 resources/

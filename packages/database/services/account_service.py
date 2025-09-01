@@ -7,7 +7,6 @@ from zendriver import Browser
 from packages.database.database import Database
 from packages.database.models import Account
 from packages.sns_utils.browser import BrowserUtil
-from sqlalchemy.orm import selectinload
 
 class AccountService:
   """
@@ -70,11 +69,7 @@ class AccountService:
     Returns:
         Account | None: The Account object with the given ID or None if not found.
     """
-    async with self.__session as conn:
-      result = await conn.execute(
-        select(Account).options(selectinload(Account.proxy)).where(Account.id == account_id)
-      )
-      return result.scalar_one_or_none()
+    return await self.__session.get(Account, account_id)
 
   async def update_account(self, account: Account) -> None:
     """Update an existing account.
