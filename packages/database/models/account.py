@@ -1,11 +1,12 @@
 """Account model"""
+import os
 from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Set
 from pydantic import BaseModel, Field
 import ua_generator
 from ua_generator.data.version import VersionRange
 import ua_generator.options
-from zendriver.cdp.network import CookieParam
+from zendriver.cdp.network import Cookie
 from sqlalchemy import Dialect, ForeignKey, Integer, String, Boolean, DateTime, TypeDecorator
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 import sqlalchemy
@@ -54,11 +55,15 @@ class CookieType(TypeDecorator):
   """Custom SQLAlchemy type for handling CookieParam objects."""
   impl = sqlalchemy.types.JSON
 
-  def process_bind_param(self, value: CookieParam | None, dialect: Dialect) -> dict | None:  # noqa: PLR6301
-    return value.to_json() if value else None
+  def process_bind_param( # noqa: PLR6301
+    self,
+    value: List[Cookie] | None,
+    dialect: Dialect
+  ) -> list[dict] | None:
+    return [cookie.to_json() for cookie in value] if value else None
 
-  def process_result_value(self, value: dict | None, dialect: Dialect) -> CookieParam | None:  # noqa: PLR6301
-    return CookieParam.from_json(value) if value else None
+  def process_result_value(self, value: dict | None, dialect: Dialect) -> List[Cookie] | None:  # noqa: PLR6301
+    return [Cookie.from_json(cookie) for cookie in value] if value else None
 
 
 class Account(Base):
@@ -77,11 +82,14 @@ class Account(Base):
     default=datetime.now,
     onupdate=datetime.now
   )
-  cookies: Mapped[CookieParam | None] = mapped_column(CookieType, nullable=True, default=None)
+  cookies: Mapped[List[Cookie]] = mapped_column(CookieType, nullable=True, default=None)
   access_token: Mapped[str] = mapped_column(String, default=None, nullable=True)
   proxy_id: Mapped[int | None] = mapped_column(ForeignKey("proxy.id"), nullable=True, default=None)
   proxy: Mapped["Proxy | None"] = relationship(back_populates="accounts")
-  groups: Mapped[List["Group"]] = relationship(back_populates="account", cascade="all")
+  groups: Mapped[Set["Group"]] = relationship(
+    back_populates="account",
+    lazy="selectin"
+  )
   
   def to_schema(self) -> AccountSchema:
     """Convert the Account object to an AccountSchema."""
@@ -90,3 +98,14 @@ class Account(Base):
   def to_json(self) -> dict:
     """Convert the Account object to a JSON serializable dictionary."""
     return AccountSchema.model_validate(self).model_dump()
+
+  def get_user_data_dir(self) -> str:
+    """Get the user data directory for the account.
+
+    Returns:
+        str: The user data directory path.
+    """
+    user_data_dir = os.path.join(os.getcwd(), "resources", "user_data_dir", str(self.id))
+    if not os.path.exists(user_data_dir):
+        os.makedirs(user_data_dir)
+    return user_data_dir

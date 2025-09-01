@@ -1,4 +1,3 @@
-# Use Python 3.13 to match your development environment
 FROM python:3.13-slim as base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
