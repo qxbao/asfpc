@@ -1,0 +1,3 @@
+@REM QUICK VIRTUAL ENVIRONMENT ACTIVATION
+
+.venv/Scripts/activate &&
