@@ -20,7 +20,7 @@ class Proxy(Base):
   updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now,
                                                onupdate=datetime.now)
   accounts: Mapped[list["Account"]] = relationship(back_populates="proxy")
-  UniqueConstraint("ip", "port", "username", name="uq_ip_port_username")
+  __table_args__: tuple = (UniqueConstraint("ip", "port", "username", name="uq_ip_port_username"),)
 
   def get_proxy_url(self) -> str:
     return f"http://{self.username}:{self.password}@{self.ip}:{self.port}"
