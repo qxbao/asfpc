@@ -10,6 +10,8 @@ from zendriver.cdp.network import Cookie
 from sqlalchemy import Dialect, ForeignKey, Integer, String, Boolean, DateTime, TypeDecorator
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 import sqlalchemy
+
+from packages.database.models.profile import UserProfile
 from .base import Base
 
 if TYPE_CHECKING:
@@ -86,6 +88,10 @@ class Account(Base):
   access_token: Mapped[str] = mapped_column(String, default=None, nullable=True)
   proxy_id: Mapped[int | None] = mapped_column(ForeignKey("proxy.id"), nullable=True, default=None)
   proxy: Mapped["Proxy | None"] = relationship(back_populates="accounts")
+  scraped_profiles: Mapped[Set["UserProfile"]] = relationship(
+    back_populates="scraped_by",
+    lazy="selectin"
+  )
   groups: Mapped[Set["Group"]] = relationship(
     back_populates="account",
     lazy="selectin"

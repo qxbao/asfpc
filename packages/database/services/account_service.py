@@ -1,5 +1,6 @@
 "Account service module"
 import logging
+from os import access
 from typing import List
 import aiohttp
 from sqlalchemy import select
@@ -7,8 +8,10 @@ from zendriver import Browser
 from packages.database.database import Database
 from packages.database.models import Account
 from packages.database.models.group import Group
+from packages.etc.dialog import DialogUtil
 from packages.sns_utils.browser import BrowserUtil
 from packages.sns_utils.facebook import FacebookUtil
+from packages.sns_utils.fgraph import FacebookGraph
 
 class AccountService:
   """
@@ -106,12 +109,14 @@ class AccountService:
           break
         account.cookies = await browser.cookies.get_all() # type: ignore
         await browser.main_tab.sleep(1)
+      is_blocked = await DialogUtil.confirmation("Account Status", "Is the account blocked?")
+      account.is_block = is_blocked
       return True
     except Exception as e:
       self.logger.error(f"Error logging in account {account.id}: {e}")
       return False
 
-  async def gen_access_token(self, account: Account) -> str | None:
+  async def gen_access_token(self, account: Account) -> str | None:  # noqa: PLR6301
     """Generate the access token for a logged-in account.
 
     Args:
@@ -120,18 +125,9 @@ class AccountService:
     Returns:
         str | None: The access token if found, None otherwise.
     """
-    cookies = BrowserUtil.cookie_aio_converter(account.cookies)
-    async with aiohttp.ClientSession(cookies=cookies) as session:
-      async with session.get("https://business.facebook.com/content_management") as resp:
-        text = await resp.text(encoding="utf-8", errors="ignore")
-        idx = text.find("EAAG")
-        if idx == -1:
-          self.logger.warning(f"Access token not found for account {account.id}")
-          return None
-        token = text[idx:text.find('"', idx)]
-        account.access_token = token
-        await self.update_account(account)
-        return token
+    graph = FacebookGraph()
+    access_token = graph.get_access_token(account.username, account.password)
+    return access_token
       
   async def join_group(self, account: Account, group: Group) -> bool:
     """Join a Facebook group using the provided account.

@@ -34,8 +34,8 @@ class UserProfile(Base):
   )
   scraped_by_id: Mapped[int] = mapped_column(ForeignKey("account.id"), nullable=False)
   scraped_by: Mapped["Account"] = relationship(back_populates="scraped_profiles")
-  images: Mapped["List[Image]"] = relationship(back_populates="belong_to")
-  financial_analyses: Mapped["List[FinancialAnalysis]"] = relationship(
+  images: Mapped[List["Image"]] = relationship(back_populates="belong_to")
+  financial_analyses: Mapped[List["FinancialAnalysis"]] = relationship(
     back_populates="user_profile", cascade="all, delete-orphan"
   )
 
