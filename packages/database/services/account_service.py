@@ -1,8 +1,6 @@
 "Account service module"
 import logging
-from os import access
 from typing import List
-import aiohttp
 from sqlalchemy import select
 from zendriver import Browser
 from packages.database.database import Database
