@@ -8,6 +8,7 @@ from packages.database.database import Database
 from packages.database.models.account import Account
 from packages.database.models.group import Group
 from packages.database.models.post import Post
+from packages.database.services.account_service import AccountService
 from packages.database.services.config_service import ConfigService
 from packages.sns_utils.fgraph import FacebookGraph
 
@@ -81,7 +82,9 @@ class GroupService:
       raise RuntimeError("Group not found")
     graph = FacebookGraph()
     fetch_limit = ConfigService.get_config("FB_POST_FETCH_LIMIT")
-    self.logger.info(group.account.access_token)
+    if not group.account.access_token:
+      await AccountService().gen_access_token(account=group.account)
+      await self.__session.refresh(group.account)
     response = graph.get_posts_from_group(
       group,
       limit=int(fetch_limit) if fetch_limit else 20,
@@ -89,7 +92,6 @@ class GroupService:
       access_token=group.account.access_token
     )
     posts: List[Post] = []
-    print(response)
     for post_data in response.data:
       post_id = post_data.id.split("_")[-1]
       post = Post(

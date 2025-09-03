@@ -1,5 +1,5 @@
-from typing import TYPE_CHECKING
-from pydantic import BaseModel
+from typing import TYPE_CHECKING, List, Optional
+from pydantic import BaseModel, Field
 from sqlalchemy import Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
@@ -8,21 +8,25 @@ from .common import GraphPagination
 
 if TYPE_CHECKING:
   from .post import Post
+  from .profile import UserProfile
 
 class GraphComment(BaseModel):
   id: str
   message: str
   created_time: str
-  from_: dict[str, str]
+  from_: Optional[dict[str, str]] = Field(default=None, alias="from")
   
 class GraphCommentResponse(BaseModel):
-  data: list[GraphComment]
-  paging: GraphPagination
+  data: List[GraphComment]
+  paging: Optional[GraphPagination] = None
 
 class Comment(Base):
   __tablename__ = "comment"
 
   id: Mapped[int] = mapped_column(Integer, primary_key=True)
+  comment_id: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+  author_id: Mapped[int] = mapped_column(ForeignKey("user_profile.id"), nullable=False)
+  author: Mapped["UserProfile"] = relationship(back_populates="comments")
   content: Mapped[str] = mapped_column(String, nullable=False)
   is_analyzed: Mapped[bool] = mapped_column(default=False)
   created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)

@@ -133,7 +133,11 @@ class FacebookGraph:
     **kwargs
   ) -> GraphCommentResponse:
     """Get comments for a specific post."""
-    return self.query(
-      f"{Post.post_id}/comments",
-      **kwargs
+    return GraphCommentResponse.model_validate_json(
+      json.dumps(
+        self.query(
+          f"{Post.post_id}/comments",
+          **kwargs
+        )
+      )
     )

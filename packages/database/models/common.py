@@ -6,4 +6,8 @@ class GraphCursors(BaseModel):
 	after: Optional[str]
 
 class GraphPagination(BaseModel):
-	cursor: GraphCursors
+	cursors: GraphCursors
+
+class UserField(BaseModel):
+	id: str
+	name: str

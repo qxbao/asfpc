@@ -1,7 +1,6 @@
 import logging
-import select
 import os
-from sqlalchemy import Sequence
+from sqlalchemy import Sequence, select
 from packages.database.database import Database
 from packages.database.models.config import Config
 

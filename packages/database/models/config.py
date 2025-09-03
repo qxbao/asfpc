@@ -2,7 +2,6 @@ from sqlalchemy import Integer, String
 from sqlalchemy.orm import mapped_column, Mapped
 from packages.database.models.base import Base
 
-
 class Config(Base):
   __tablename__ = "config"
 
