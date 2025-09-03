@@ -1,21 +1,29 @@
+import json
 import logging
 import os
 import hashlib
 import random
+from typing import Optional
+from fastapi import HTTPException
 import requests
 from urllib.parse import urlencode
+
+from packages.database.models.comment import GraphCommentResponse
+from packages.database.models.group import GraphPostResponse, Group
+from packages.database.models.post import Post
 
 
 class FacebookGraph:
   URL = {
-    "BASE":"https://api.facebook.com/restserver.php"
+    "BASE":"https://api.facebook.com/restserver.php",
+    "GRAPH":"https://graph.facebook.com/v23.0"
   }
   API_SECRET="62f8ce9f74b12f84c123cc23437a4a32"
   API_KEY="882a8490361da98702bf97a021ddc14d"
   logger = logging.getLogger("FacebookGraph")
   def __init__(self):
-    self.app_id = os.getenv("FB_APP_ID")
-    self.app_secret = os.getenv("FB_APP_SECRET")
+    self.APP_ID = os.getenv("FB_APP_ID")
+    self.APP_SECRET = os.getenv("FB_APP_SECRET")
     self.access_token = None
 
   @staticmethod
@@ -84,3 +92,48 @@ class FacebookGraph:
     except Exception as e:
       self.logger.exception(e)
       raise e
+
+  def query(self, path: str,
+      access_token: Optional[str] = None,
+      headers: Optional[dict] = None,
+      **kwargs) -> dict:
+    if not access_token:
+      access_token = self.access_token
+    try:
+      params = "&".join([f"{key}={value}" for key, value in kwargs.items()]) \
+                + f"&access_token={access_token}"
+      url = f"{self.URL.get('GRAPH', 'https://graph.facebook.com/v23.0')}/{path}?{params}"
+      self.logger.info(f"Graph API URL: {url}")
+      response = requests.get(url, headers=headers)
+      data = response.json()
+      self.logger.info(f"Graph API Response: {data}")
+      return data
+    except Exception as e:
+      self.logger.exception(e)
+      raise HTTPException(status_code=500, detail=str(e))
+
+  def get_posts_from_group(
+    self,
+    group: Group,
+    **kwargs,
+  ) -> GraphPostResponse:
+    """Get posts for a specific group."""
+    return GraphPostResponse.model_validate_json(
+      json.dumps(
+        self.query(
+          f"{group.group_id}/feed",
+          **kwargs
+        )
+      )
+    )
+
+  def get_posts_comments(
+    self,
+    Post: Post,
+    **kwargs
+  ) -> GraphCommentResponse:
+    """Get comments for a specific post."""
+    return self.query(
+      f"{Post.post_id}/comments",
+      **kwargs
+    )

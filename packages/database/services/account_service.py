@@ -125,6 +125,8 @@ class AccountService:
     """
     graph = FacebookGraph()
     access_token = graph.get_access_token(account.username, account.password)
+    account.access_token = access_token
+    await self.update_account(account)
     return access_token
       
   async def join_group(self, account: Account, group: Group) -> bool:
