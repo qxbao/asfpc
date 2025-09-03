@@ -94,8 +94,8 @@ class FacebookGraph:
       raise e
 
   def query(self, path: str,
-      access_token: Optional[str] = None,
       headers: Optional[dict] = None,
+      access_token: Optional[str] = None,
       **kwargs) -> dict:
     if not access_token:
       access_token = self.access_token
@@ -103,10 +103,9 @@ class FacebookGraph:
       params = "&".join([f"{key}={value}" for key, value in kwargs.items()]) \
                 + f"&access_token={access_token}"
       url = f"{self.URL.get('GRAPH', 'https://graph.facebook.com/v23.0')}/{path}?{params}"
-      self.logger.info(f"Graph API URL: {url}")
+      self.logger.info(f"Send GET Request to URL: {url}")
       response = requests.get(url, headers=headers)
       data = response.json()
-      self.logger.info(f"Graph API Response: {data}")
       return data
     except Exception as e:
       self.logger.exception(e)
