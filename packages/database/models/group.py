@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from pydantic import BaseModel, Field
 from sqlalchemy import ForeignKey, UniqueConstraint
 from .base import Base
@@ -26,6 +26,15 @@ class JoinGroupDTO(BaseModel):
   account_id: int = Field(..., examples=[1])
   group_id: int = Field(..., examples=[1])
 
+class GraphPost(BaseModel):
+  updated_time: str
+  id: str
+  message: Optional[str] = None
+  is_broadcast: Optional[bool] = None
+
+class GraphPostResponse(BaseModel):
+  data: list[GraphPost]
+  paging: Optional[dict[str, str]]
 class Group(Base):
   __tablename__ = "group"
   id: Mapped[int] = mapped_column(primary_key=True)

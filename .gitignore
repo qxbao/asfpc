@@ -8,3 +8,5 @@ __pycache__/
 .vscode/
 .ruff_cache/
 resources/
+.mypy_cache/
+test.*

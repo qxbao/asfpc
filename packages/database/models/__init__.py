@@ -8,6 +8,7 @@ from .image import Image
 from .profile import UserProfile
 from .financial_analysis import FinancialAnalysis
 from .prompt import Prompt
+from .config import Config
 
 __all__ = [
     "Base",
@@ -19,5 +20,6 @@ __all__ = [
     "Image",
     "UserProfile",
     "FinancialAnalysis",
-    "Prompt"
+    "Prompt",
+    "Config"
 ]

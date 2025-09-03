@@ -10,7 +10,7 @@ from packages.database.services.account_service import AccountService
 
 router = APIRouter(
 	prefix="/account",
-	tags=["account"],
+	tags=["Account endpoints"],
 )
 
 logger = logging.getLogger("AccountRouter")

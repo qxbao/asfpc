@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from packages.database.database import Database
-from routers import account
+from packages.database.services.config_service import ConfigService
+from routers import account, analysis
 
 load_dotenv()
 
@@ -44,6 +45,7 @@ async def lifespan(_: FastAPI):
     raise ConnectionRefusedError("Failed to connect to the database.")
   else:
     logging.info("Database connected successfully.")
+  await ConfigService().load_config_to_env()
   yield
   await Database.close()
   logging.info("Application shutdown complete.")
@@ -63,6 +65,10 @@ app.add_middleware(
 
 app.include_router(
   account.router
+)
+
+app.include_router(
+  analysis.router
 )
 
 @app.get("/health")

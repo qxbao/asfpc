@@ -9,6 +9,7 @@ if TYPE_CHECKING:
   from .account import Account
   from .image import Image
   from .financial_analysis import FinancialAnalysis
+  from .comment import Comment
 
 class UserProfile(Base):
   """User Profile model for storing scraped Facebook profile data"""
@@ -34,10 +35,11 @@ class UserProfile(Base):
   )
   scraped_by_id: Mapped[int] = mapped_column(ForeignKey("account.id"), nullable=False)
   scraped_by: Mapped["Account"] = relationship(back_populates="scraped_profiles")
-  images: Mapped["List[Image]"] = relationship(back_populates="belong_to")
-  financial_analyses: Mapped["List[FinancialAnalysis]"] = relationship(
+  images: Mapped[List["Image"]] = relationship(back_populates="belong_to")
+  financial_analyses: Mapped[List["FinancialAnalysis"]] = relationship(
     back_populates="user_profile", cascade="all, delete-orphan"
   )
+  comments: Mapped[List["Comment"]] = relationship(back_populates="author")
 
   def to_schema(self) -> "UserProfileSchema":
     return UserProfileSchema.model_validate(self)
